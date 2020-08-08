@@ -1,8 +1,17 @@
 from rest_framework import serializers
+from .models import Room
+from users.serializers import TinyUserSerializer
 
 
-class RoomSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=140)
-    price = serializers.IntegerField()
-    beds = serializers.IntegerField()
-    instant_book = serializers.BooleanField()
+class RoomSerializer(serializers.ModelSerializer):
+
+    user = TinyUserSerializer()
+
+    class Meta:
+        model = Room
+        fields = (
+            "name",
+            "price",
+            "instant_book",
+            "user",
+        )
