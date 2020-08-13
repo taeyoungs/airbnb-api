@@ -4,14 +4,14 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Room
-from .serializers import ReadRoomSerializer, WriteRoomSerializer
+from .serializers import RoomSerializer
 
 
 # CBV
 class RoomsView(APIView):
     def get(self, request):
         rooms = Room.objects.all()[0:5]
-        serializer = ReadRoomSerializer(rooms, many=True).data
+        serializer = RoomSerializer(rooms, many=True).data
         return Response(data=serializer, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -19,10 +19,10 @@ class RoomsView(APIView):
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        serializer = WriteRoomSerializer(data=request.data)
+        serializer = RoomSerializer(data=request.data)
         if serializer.is_valid():
             room = serializer.save(user=request.user)
-            room_serializer = ReadRoomSerializer(room).data
+            room_serializer = RoomSerializer(room).data
             return Response(data=room_serializer, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -40,7 +40,7 @@ class RoomView(APIView):
 
         room = self.get_room(pk)
         if room is not None:
-            serializer = ReadRoomSerializer(room).data
+            serializer = RoomSerializer(room).data
             return Response(data=serializer)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -51,11 +51,11 @@ class RoomView(APIView):
         if room.user != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
         if room is not None:
-            serializer = WriteRoomSerializer(room, data=request.data, partial=True)
+            serializer = RoomSerializer(room, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 room = serializer.save(user=request.user)
-                room_serializer = ReadRoomSerializer(room).data
+                room_serializer = RoomSerializer(room).data
                 return Response(data=room_serializer)
             else:
                 return Response(

@@ -18,6 +18,7 @@ class ReadUserSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_active",
             "groups",
+            "favs",
             "user_permissions",
         )
 
