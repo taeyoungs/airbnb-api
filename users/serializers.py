@@ -2,28 +2,34 @@ from rest_framework import serializers
 from .models import User
 
 
-class RelatedUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
-        fields = ("username", "first_name", "last_name", "avatar", "superhost")
-
-
-class ReadUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        exclude = (
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "avatar",
+            "superhost",
             "password",
-            "last_login",
-            "is_superuser",
-            "is_staff",
-            "is_active",
-            "groups",
-            "favs",
-            "user_permissions",
+        )
+        read_only_fields = (
+            "id",
+            "avatar",
+            "created",
+            "updated",
+            "superhost",
         )
 
+    def create(self, validated_data):
+        password = validated_data.get("password")
+        user = super().create(validated_data)
+        user.set_password(password)
+        user.save()
 
-class WriteUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        exclude = ()
+        return user
