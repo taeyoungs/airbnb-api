@@ -2,17 +2,83 @@ import jwt
 from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .serializers import UserSerializer
 from .models import User
+from .permissions import IsSelf
 from rooms.models import Room
 from rooms.serializers import RoomSerializer
 
 
+class UsersViewSet(ModelViewSet):
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.action == "list":
+            permission_classes = [IsAdminUser]
+        elif (
+            self.action == "create"
+            or self.action == "retrieve"
+            or self.action == "favs"
+        ):
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsSelf]
+        return [permission() for permission in permission_classes]
+
+    @action(detail=False, methods=["post"])
+    def token(self, request):
+        username = request.data.get("username", None)
+        password = request.data.get("password", None)
+        if username is None or password is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            encoded_jwt = jwt.encode(
+                {"pk": user.pk}, settings.SECRET_KEY, algorithm="HS256"
+            )
+            return Response(data={"token": encoded_jwt, "pk": user.pk})
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    @action(detail=True)
+    def favs(self, request, pk):
+        user = self.get_object()
+        rooms = user.favs.all()
+        serializer = RoomSerializer(rooms, many=True).data
+
+        return Response(data=serializer)
+
+    @favs.mapping.put
+    def toggle_favs(self, request, pk):
+
+        pk = request.data.get("pk", None)
+        # self.get_object() permission으로 이미 걸러져서 로그인한 유저의 favs만 넘어오는 구조
+        user = self.get_object()
+
+        if pk is not None:
+            try:
+                room = Room.objects.get(pk=pk)
+                if room in user.favs.all():
+                    user.favs.remove(room)
+                else:
+                    user.favs.add(room)
+                return Response()
+            except Room.DoesNotExist:
+                Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# CBV
 # Create Account
+"""
 class UsersView(APIView):
     def post(self, request):
 
@@ -72,8 +138,10 @@ class FavsView(APIView):
                 Response(status=status.HTTP_404_NOT_FOUND)
         else:
             Response(status=status.HTTP_400_BAD_REQUEST)
+"""
 
-
+# FBV
+"""
 @api_view(["GET"])
 def user_detail(request, pk):
     try:
@@ -98,3 +166,4 @@ def token(request):
         return Response(data={"token": encoded_jwt})
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+"""

@@ -33,11 +33,11 @@ class RoomSerializer(serializers.ModelSerializer):
 
     def get_is_fav(self, obj):
 
-        user = self.context.get("request").user
-        if obj in user.favs.all():
-            return True
-        else:
-            return False
+        request = self.context.get("request")
+        if request:
+            if obj in request.user.favs.all():
+                return True
+        return False
 
     def create(self, validated_data):
         request = self.context.get("request")
