@@ -5,7 +5,8 @@ from users.serializers import UserSerializer
 
 class RoomSerializer(serializers.ModelSerializer):
 
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
+    is_fav = serializers.SerializerMethodField()
 
     class Meta:
         model = Room
@@ -29,3 +30,16 @@ class RoomSerializer(serializers.ModelSerializer):
                 "Check-in and Check-out can't be set the same time"
             )
         return data
+
+    def get_is_fav(self, obj):
+
+        user = self.context.get("request").user
+        if obj in user.favs.all():
+            return True
+        else:
+            return False
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        room = Room.objects.create(**validated_data, user=request.user)
+        return room
