@@ -3,6 +3,8 @@ from core.models import CoreModel
 
 
 class Room(CoreModel):
+    class Meta:
+        ordering = ["id"]
 
     name = models.CharField(max_length=140)
     address = models.CharField(max_length=140)
