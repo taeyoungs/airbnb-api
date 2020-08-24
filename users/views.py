@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from .serializers import UserSerializer
 from .models import User
 from .permissions import IsSelf
@@ -27,7 +27,7 @@ class UsersViewSet(ModelViewSet):
             or self.action == "retrieve"
             or self.action == "favs"
         ):
-            permission_classes = [IsAuthenticated]
+            permission_classes = [AllowAny]
         else:
             permission_classes = [IsSelf]
         return [permission() for permission in permission_classes]
