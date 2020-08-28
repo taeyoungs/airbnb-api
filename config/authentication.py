@@ -18,7 +18,6 @@ class JWTAuthentication(authentication.BaseAuthentication):
                     jwt_token, settings.SECRET_KEY, algorithms=["HS256"]
                 )
                 pk = decoded.get("pk")
-                # User.DoesNotExist
                 user = User.objects.get(pk=pk)
                 return (user, None)
             except ValueError:

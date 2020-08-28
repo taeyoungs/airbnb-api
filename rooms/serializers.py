@@ -1,11 +1,18 @@
 from rest_framework import serializers
-from .models import Room
+from .models import Room, Photo
 from users.serializers import UserSerializer
+
+
+class PhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
+        exclude = ("room",)
 
 
 class RoomSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
+    photos = PhotoSerializer(read_only=True, many=True)
     is_fav = serializers.SerializerMethodField()
 
     class Meta:
@@ -35,8 +42,9 @@ class RoomSerializer(serializers.ModelSerializer):
 
         request = self.context.get("request")
         if request:
-            if obj in request.user.favs.all():
-                return True
+            user = request.user
+            if user.is_authenticated:
+                return obj in request.user.favs.all()
         return False
 
     def create(self, validated_data):
