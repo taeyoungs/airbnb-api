@@ -26,6 +26,7 @@ class UsersViewSet(ModelViewSet):
             self.action == "create"
             or self.action == "retrieve"
             or self.action == "favs"
+            or self.action == "token"
         ):
             permission_classes = [AllowAny]
         else:
@@ -51,7 +52,7 @@ class UsersViewSet(ModelViewSet):
     def favs(self, request, pk):
         user = self.get_object()
         rooms = user.favs.all()
-        serializer = RoomSerializer(rooms, many=True).data
+        serializer = RoomSerializer(rooms, many=True, context={"request": request}).data
 
         return Response(data=serializer)
 
