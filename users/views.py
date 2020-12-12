@@ -20,6 +20,7 @@ class UsersViewSet(ModelViewSet):
 
     def get_permissions(self):
         permission_classes = []
+        # print(self.action)
         if self.action == "list":
             permission_classes = [IsAdminUser]
         elif (
@@ -32,6 +33,13 @@ class UsersViewSet(ModelViewSet):
         else:
             permission_classes = [IsSelf]
         return [permission() for permission in permission_classes]
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
     @action(detail=False, methods=["post"])
     def token(self, request):
@@ -66,6 +74,7 @@ class UsersViewSet(ModelViewSet):
         if pk is not None:
             try:
                 room = Room.objects.get(pk=pk)
+                print(room)
                 if room in user.favs.all():
                     user.favs.remove(room)
                 else:
