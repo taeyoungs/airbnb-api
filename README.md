@@ -1,10 +1,13 @@
 # Airbnb API
 
-REST & GraphQL API of the Airbnb Clone using Django REST Framework and Graphene GraphQL
+REST API of the Airbnb Clone using Django REST Framework
 
-## Django REST Framework
+## Stack
 
-### API Actions
+1. Django
+2. Django REST Framework
+
+## API Actions
 
 - [x] JWT Authentication
 - [x] Login (JWT)
@@ -14,6 +17,10 @@ REST & GraphQL API of the Airbnb Clone using Django REST Framework and Graphene 
 - [x] List Rooms
 - [x] Edit Profile
 - [x] See Room
-- [x] Create Room
-- [x] Delete Room
+- [x] Create, Delete Room
 - [x] Search Rooms
+- [x] Search again map
+
+## Client App
+
+https://github.com/taeyoungs/airbnb-native

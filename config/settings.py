@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "192.168.0.25",
+    "172.16.35.115",
     "172.20.10.3",
     "127.0.0.1",
     "localhost",
@@ -162,5 +163,7 @@ if not DEBUG:
             "config.authentication.JWTAuthentication",
             "rest_framework.authentication.SessionAuthentication",
         ],
-        "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer",],
+        "DEFAULT_RENDERER_CLASSES": [
+            "rest_framework.renderers.JSONRenderer",
+        ],
     }
